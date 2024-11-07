@@ -159,3 +159,24 @@ xlabel('time');
 ylabel('amplitude');
 
 title('output sequence');
+ 
+fir
+rp=0.0200
+rs=0.04
+fp=1500
+fs=2000
+f=9000
+wp=2*fp/f
+ws=2*fs/f
+wn=[wp ws]
+num=-20*log10(sqrt(rp*rs))-13
+den=14.6*(fs-fp)/f
+L=ceil(num/den)
+b1=fir1(L-1,wn, rectwin(L))
+[h1,w]=freqz(b1)
+w=w/pi
+plot(w,20*log(abs(h1)),'r')
+
+
+iir
+
