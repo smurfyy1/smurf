@@ -100,3 +100,62 @@ subplot(2,2,1)
 stem(y)
 subplot(2,2,2)
 stem(z)
+
+overlap save
+x1=[1,2,3,4,5,6,7,8];
+
+h=[1,5,3];
+
+n1=length(x1);
+
+n2=length(h);
+
+n=n1+n2-1;
+
+h=[h zeros(1,n2-1)]
+
+n3=length(h)
+
+ x=[x1 zeros(1,n3-1)]
+
+y=zeros(1,n);
+
+for i=1:n2:n1
+
+ t=cconv(x(1,i:i+n3-1),h,n3)
+
+ y(1,i+n2-1:i+n2+1)=t(1,n2:n3)
+
+end
+
+disp(y)
+
+z=conv(x1,h)
+
+subplot(3,2,1);
+
+stem(x);
+
+xlabel('time');
+
+title('input sequence');
+
+subplot(3,2,2);
+
+stem(h);
+
+xlabel('time');
+
+ylabel('amplitude');
+
+title('impulse sequence');
+
+subplot(3,2,3);
+
+stem(y);
+
+xlabel('time');
+
+ylabel('amplitude');
+
+title('output sequence');
