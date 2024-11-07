@@ -91,7 +91,7 @@ n3=length(x)
 y=zeros(1,n)
 for i=1:n2:n3
     t1=zeros(1,n)
-    t=conv(x(i:i+n2-1),h);
+    t=conv(x(i:i+n2-1),h1);
     t1(1,i:i+n2)=t(1,:);
     y=y+t1(1,1:n)
 end
