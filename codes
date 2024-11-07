@@ -1,0 +1,102 @@
+circular
+x=[1 2 3 4 5]
+h=[1 2 3]
+n1=length(x)
+n2=length(h)
+n=max(n1,n2)
+x=[x zeros(1,n-n1)]
+h=[h zeros(1,n-n2)]
+xt=zeros(n,n)
+ht=zeros(n,1)
+xt(:,1)=x'
+ht(:,1)=h'
+for j=2:1:n
+    for i=1:1:n
+        if(i==1)
+            xt(i,j)=xt(n,j-1)
+        else
+            xt(i,j)=xt(i-1,j-1)
+        end
+    end
+end
+yt=xt*ht
+y=yt'
+t=1:n
+subplot(2,2,1)
+stem(t,y)
+z=cconv(x,h,n)
+subplot(2,2,2)
+stem(t,z)
+
+linear
+x1=[1 2 3 4 5 6 7 8]
+h1=[1 2 3]
+l1=length(x1)
+l2=length(h1)
+N=l1+l2-1
+x=[x1 zeros(1,N-l1)]
+h=[h1 zeros(1,N-l2)]
+y=zeros(1,N)
+for n=0:N-1
+    for k=0:n;
+        y(n+1)=y(n+1)+(x(k+1)*h(n+1-k))
+    end
+end
+j=conv(x1,h1)
+disp(j)
+disp(y)
+
+linear using circular
+x=[1 2 3 4 5]
+h=[1 2 3]
+n1=length(x)
+n2=length(h)
+n=n1+n2-1
+x=[x zeros(1,n-n1)]
+h=[h zeros(1,n-n2)]
+xt=zeros(n,n)
+ht=zeros(n,1)
+xt(:,1)=x'
+ht(:,1)=h'
+for j=2:1:n
+    for i=1:1:n
+        if(i==1)
+            xt(i,j)=xt(n,j-1)
+        else
+            xt(i,j)=xt(i-1,j-1)
+        end
+    end
+end
+yt=xt*ht
+y=yt'
+subplot(2,2,1)
+stem(y)
+z=conv(x,h)
+subplot(2,2,2)
+stem(z)
+
+overlap add
+x1=[1 2 3 4 5 6 7 8 9 0]
+h1=[1 2]
+n1=length(x1)
+n2=length(h1)
+n=n1+n2-1
+r=rem(n1,n2)
+if(r==0)
+    x=x1
+else
+    x=[x1 zeros(1,n2-r)]
+end
+n3=length(x)
+y=zeros(1,n)
+for i=1:n2:n3
+    t1=zeros(1,n)
+    t=conv(x(i:i+n2-1),h);
+    t1(1,i:i+n2)=t(1,:);
+    y=y+t1(1,1:n)
+end
+z=conv(x1,h1)
+subplot(2,2,1)
+stem(y)
+subplot(2,2,2)
+stem(z)
