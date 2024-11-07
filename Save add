@@ -1,0 +1,182 @@
+//overlap save
+x1=[1,2,3,4,5,6,7,8];
+
+h=[1,5,3];
+
+n1=length(x1);
+
+n2=length(h);
+
+n=n1+n2-1;
+
+h=[h zeros(1,n2-1)]
+
+n3=length(h)
+
+ x=[x1 zeros(1,n3-1)]
+
+y=zeros(1,n);
+
+for i=1:n2:n1
+
+ t=cconv(x(1,i:i+n3-1),h,n3)
+
+ y(1,i+n2-1:i+n2+1)=t(1,n2:n3)
+
+end
+
+disp(y)
+
+z=conv(x1,h)
+
+subplot(3,2,1);
+
+stem(x);
+
+xlabel('time');
+
+title('input sequence');
+
+subplot(3,2,2);
+
+stem(h);
+
+xlabel('time');
+
+ylabel('amplitude');
+
+title('impulse sequence');
+
+subplot(3,2,3);
+
+stem(y);
+
+xlabel('time');
+
+ylabel('amplitude');
+
+title('output sequence');
+
+
+//overlap add
+x1=input('enter the first sequence');
+
+h=input('enter the second sequence');
+
+n1=length(x1);
+
+n2=length(h);
+
+n=n1+n2-1;
+
+r=rem(n1,n2);
+
+if (r==0)
+
+ x=x1;
+
+else
+
+ x=[x1 zeros(1,n2-r)];
+
+end
+
+n3=length(x);
+
+y=zeros(1,n);
+
+for i=1:n2:n3;
+
+ t1=zeros(1,n);
+
+ t=conv(x(1,i:i+n2-1),h);;
+
+ t1(1,i:i+n2)=t(1,:);;
+
+ y=y+t1(1,1:n);
+
+end
+
+disp(y)
+
+z=conv(x1,h);
+
+disp(z)
+
+ subplot(2,2,1)
+
+ stem(x1)
+
+ xlabel('----->n')
+
+ ylabel('----->x(n)')
+
+ title('first sequence')
+
+ subplot(2,2,2)
+
+ stem(h)
+
+ xlabel('----->n')
+
+ ylabel(' ----->h(n)')
+
+ title('second sequence')
+
+ subplot(2,2,3)
+
+ stem(y)
+
+ xlabel('----->n')
+
+ ylabel('----->y(n)')
+
+ title('convolved sequence')
+
+ subplot(2,2,4)
+
+ stem(z)
+
+ xlabel('----->n')
+
+ ylabel('----->j(n)')
+
+ title('convolution using inbuilt function') 
+
+
+//triangular
+30/7/24 3:28 PM C:\Users\STUDENT\Documents\gfdgdg.m 1 of 1
+
+M=input('enter the AMPLITUDE')
+
+N=input('enter the number of cycles')
+
+t1=[1:0.05,M]
+
+t2=[M:-0.05,0]
+
+t=[]
+
+for i=1:N
+
+ t=[t,t1,t2]
+
+end
+
+subplot(2,2,1)
+
+plot(t)
+
+xlabel('--->time')
+
+ylabel('--->Amplitude')
+
+subplot(2,2,2)
+
+stem(t)
+
+xlabel('--->time')
+
+ylabel('--->Amplitude'
+
+
