@@ -1,4 +1,30 @@
-circular
+#Unit Impulse
+n=-5:5
+a=[zeros(1,5) 1 zeros(1,5)]
+stem(n,a)
+title('Unit Impulse')
+xlabel('-->n')
+ylabel('-->x(n)')
+
+#Unit Step
+n=-5:5
+a=[zeros(1,5) ones(1,6)]
+stem(n,a)
+title('Unit Step')
+xlabel('-->n')
+ylabel('-->x(n)')
+
+#Unit Ramp
+n=-5:5
+a=[zeros(1,5) ones(1,6)]
+stem(n,a)
+title('Unit Step')
+xlabel('-->n')
+ylabel('-->x(n)')
+
+#Bipolar Pulse
+
+#circular
 x=[1 2 3 4 5]
 h=[1 2 3]
 n1=length(x)
