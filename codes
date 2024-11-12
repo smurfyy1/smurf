@@ -56,7 +56,7 @@ title('Triangular Pulse')
 xlabel('-->n')
 ylabel('-->x(n)')
 
-
+---------------------------------End of basic signal plotting-------------------------------------
 
 #circular
 x=[1 2 3 4 5]
