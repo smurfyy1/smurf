@@ -1,8 +1,79 @@
-clc; close all; clear all; n=input('Enter for n-bit PCM system : '); %Encodebook Bit Length n1=input('Enter Sampling Frequency : '); %Sampling Frequency L = 2^n; %Number of Quantisation Levels %% Here we plot the Analog Signal and its Sampled form Vmax = 8; x = 0:pi/n1:4*pi; %Construction of Signal ActualSignl=Vmax*sin(x); %Actual input subplot(5,1,1); plot(ActualSignl); title('Analog Signal'); subplot(5,1,2); %Sampled Version stem(ActualSignl); grid on; title('Sampled Signal'); %% Now perform the Quantization Process Vmin=-Vmax; %Since the Signal is sine StepSize=(Vmax-Vmin)/L; %Diference between each quantisation level QuantizationLevels=Vmin:StepSize:Vmax; %Quantisation Levels - For comparison codebook=Vmin-(StepSize/2):StepSize:Vmax+(StepSize/2); %Quantisation Values -                                                             As Final Output of qunatiz [ind,q]=quantiz(ActualSignl,QuantizationLevels,codebook); % Quantization process NonZeroInd = find(ind ~= 0); ind(NonZeroInd) = ind(NonZeroInd) - 1;  % MATLAB gives indexing from 1 to N.But we need indexing from 0, to convert                                                       it into binary codebook  BelowVminInd = find(q == Vmin-(StepSize/2)); q(BelowVminInd) = Vmin+(StepSize/2);  %This is for correction, as signal values cannot go beyond Vmin  %But quantiz may suggest it, since it return the Values lower than Actual  %Signal Value subplot(5,1,3); stem(q); grid on; % Display the Quantize values title('Quantized Signal'); %% Having Quantised the values, we perform the Encoding Process figure TransmittedSig = de2bi(ind,'left-msb'); % Encode the Quantisation Level SerialCode = reshape(TransmittedSig',[1size(TransmittedSig,1)*size(TransmittedSig,2)]); subplot(5,1,4); grid on; plot(SerialCode); stairs(SerialCode); % Display the SerialCode Bit Stream axis([0 100 -2 3]); title('Transmitted Signal'); %% Now we perform the Demodulation Of PCM signal 
-RecievedCode=reshape(SerialCode,n,length(SerialCode)/n); %Again Convert the SerialCode into Frames of 1 Byte index = bi2de(RecievedCode','left-msb'); %Binary to Decimal Conversion q = (StepSize*index); %Convert into Voltage Values q = q + (Vmin+(StepSize/2)); % Above step gives a DC shifted version of                                                                         Actual siganl %Thus it is necessary to bring it to zero level subplot(5,1,5); grid on; plot(q); % Plot Demodulated signal title('Demodulated Signal'); 
+t=0:0.01:10;
+% Generate input sinusoidal signal having positive values y=4+4*sin(t);
+subplot(3,1,1);
+plot(t,y);
+xlabel('Time'); ylabel('Amplitude'); title('Information Signal'); grid on;
+% Describe the quantization level and quantized values L=8;
+ymin=round(min(y)); ymax=round(max(y)); codebook=linspace(ymin,ymax,L); quant_level=linspace(ymin,ymax,L-1);
+% Quantize the information signal [index,Quants]=quantiz(y,quant_level,codebook); subplot(3,1,2);
+plot(t,Quants); xlabel('Time'); ylabel('Amplitude'); title('quantized Signal'); grid on;
+% Calculate the SNR value noise=y-Quants; r=snr(Quants,noise);
+% Plot between Quantization level and SNR value R=[];
+Quant_Level=[]; for n=2:8
+L=n^2; Quant_Level=[Quant_Level L]; ymin=round(min(y)); ymax=round(max(y));
+codebook=linspace(ymin,ymax,L); quant_level=linspace(ymin,ymax,L-1); [index,Quants]=quantiz(y,quant_level,codebook); noise=y-Quants;
+r=snr(y,noise); R=[R r];
+end subplot(3,1,3);
+plot(Quant_Level,R,'r*--'); xlabel('Number of Quantization levels'); ylabel('SNR in dB');
+title('SNR vs Number of Quantization level');
 
 
-%Set the simulation parameters. M = 16; % Modulation order k = log2(M); % Bits/symbol n = 20000; % Transmitted bits nSamp = 4; % Samples per symbol EbNo = 10; % Eb/No (dB)  %Set the filter parameters  span = 10; % Filter span in symbols rolloff = 0.25; % Rolloff factor  %Create the raised cosine transmit and receive filters using the previously defined parameters.  txfilter = comm.RaisedCosineTransmitFilter('RolloffFactor',rolloff, ...     'FilterSpanInSymbols',span,'OutputSamplesPerSymbol',nSamp);   rxfilter = comm.RaisedCosineReceiveFilter('RolloffFactor',rolloff, ...     'FilterSpanInSymbols',span,'InputSamplesPerSymbol',nSamp, ...     'DecimationFactor',nSamp);  %Plot the impulse response of hTxFilter. fvtool(txfilter,'impulse') filtDelay = k*span; errorRate = comm.ErrorRate('ReceiveDelay',filtDelay); x = randi([0 1],n,1);  %Modulate the data  modSig = qammod(x,M,'InputType','bit'); txSig = txfilter(modSig); %Calculate the signal-to-noise ratio (SNR) in dB given EbNo.  SNR = EbNo + 10*log10(k) - 10*log10(nSamp); noisySig = awgn(txSig,SNR,'measured'); rxSig = rxfilter(noisySig); scatterplot(rxSig) z = qamdemod(rxSig,M,'OutputType','bit');  errStat = errorRate(x,z); fprintf('\nBER = %5.2e\nBit Errors = %d\nBits Transmitted = %d\n',...     errStat) 
+sig=[];
+time=[];
+n=input('Enter the number of bits to be transmitted='); d=input('Enter the roll off factor=');
+snr=input('Enter the SNR value=');
+% Generate random bits b=randi([0,1],1,n);
+% Convert bits into bitstream for i=1:length(b)
+sig=[sig (b(i)==1)*ones(1,100)];
+end
+% Signal representation using rasined cosine pulse t=0:0.01:n-0.01;
+TSIG=zeros(1,length(t)); for i=1:length(b)
+if b(i)==1
+A=(sinc((t-(i-1))).*cos(pi*d*(t-(i-1))))./(1-(4*d^2*((t-(i-1)).*(t- (i-1)))));
+else
+A=(-1)*(sinc((t-(i-1))).*cos(pi*d*(t-(i-1))))./(1-(4*d^2*((t-(i- 1)).*(t-(i-1)))));
+end TSIG=TSIG+A;
+end
+% Transmit signal through an AWGN channel NTSIG=awgn(TSIG,snr);
+subplot(4,1,1);
+plot(t,sig);
+axis([0 t(1000) -1 2]);
+xlabel('time'); ylabel('Amplitude'); title('Binary Bit Stream'); subplot(4,1,2);
+plot(t,TSIG);
+axis([0 t(1000) -3 3]);
+xlabel('time'); ylabel('Amplitude');
+title('Signal Representation using Raised Cosine Signal'); subplot(4,1,3);
+plot(t,NTSIG);
+axis([0 t(1000) -3 3]);
+xlabel('time'); ylabel('Amplitude'); title('Received Noisy Signal');
+% Sample the received signal at mTb SAMP=[];
+for k=1:100:length(NTSIG) samp=NTSIG(k);
+SAMP=[SAMP samp zeros(1,99)];
+end subplot(4,1,4);
+plot(t,TSIG); hold;
+axis([0 t(1000) -3 3]);
+xlabel('time'); ylabel('Amplitude');
+title('Sampled version of the Received Signal'); stem(t,SAMP);
 
 
-clc clear all close all fs=20;%sampling rate fd=1;%doppler shift pd=500;%Total number of message bits x=randi(pd,1,2); a=length(x); delay=3; %rolloff factor 0.2 rcv1=rcosflt(x,fd,fs,'fir/normal',0.2,delay); %rolloff factor 0.4 rcv2=rcosflt(x,fd,fs,'fir/normal',0.4,delay); %rolloff factor 0.6 rcv3=rcosflt(x,fd,fs,'fir/normal',0.6,delay); %rolloff factor 0.8 rcv4=rcosflt(x,fd,fs,'fir/normal',0.8,delay); n=fs/fd; eyediagram(rcv1,n)%for plotting eye diagram for rolloff factor 0.2 eyediagram(rcv2,n)%for plotting eye diagram for rolloff factor 0.4 eyediagram(rcv3,n)%for plotting eye diagram for rolloff factor 0.6 eyediagram(rcv4,n)%for plotting eye diagram for rolloff factor 0.8
+fs=20;%sampling rate
+fd=1;%doppler shift
+pd=500;%Total number of message bits
+x=randi(pd,1,2);
+a=length(x);
+delay=3;
+%rolloff factor 0.2
+rcv1=rcosflt(x,fd,fs,'fir/normal',0.2,delay);
+%rolloff factor 0.4
+rcv2=rcosflt(x,fd,fs,'fir/normal',0.4,delay);
+%rolloff factor 0.6
+rcv3=rcosflt(x,fd,fs,'fir/normal',0.6,delay);
+%rolloff factor 0.8
+rcv4=rcosflt(x,fd,fs,'fir/normal',0.8,delay);
+n=fs/fd;
+eyediagram(rcv1,n)%for plotting eye diagram for rolloff factor 0.2
+eyediagram(rcv2,n)%for plotting eye diagram for rolloff factor 0.4
+eyediagram(rcv3,n)%for plotting eye diagram for rolloff factor 0.6
+eyediagram(rcv4,n)%for plotting eye diagram for rolloff factor 0.8
+
+
