@@ -1,21 +1,42 @@
-t=0:0.01:10;
-% Generate input sinusoidal signal having positive values y=4+4*sin(t);
+t = 0:0.01:10;
+y = 4 + 4 * sin(t);
 subplot(3,1,1);
-plot(t,y);
-xlabel('Time'); ylabel('Amplitude'); title('Information Signal'); grid on;
-% Describe the quantization level and quantized values L=8;
-ymin=round(min(y)); ymax=round(max(y)); codebook=linspace(ymin,ymax,L); quant_level=linspace(ymin,ymax,L-1);
-% Quantize the information signal [index,Quants]=quantiz(y,quant_level,codebook); subplot(3,1,2);
-plot(t,Quants); xlabel('Time'); ylabel('Amplitude'); title('quantized Signal'); grid on;
-% Calculate the SNR value noise=y-Quants; r=snr(Quants,noise);
-% Plot between Quantization level and SNR value R=[];
-Quant_Level=[]; for n=2:8
-L=n^2; Quant_Level=[Quant_Level L]; ymin=round(min(y)); ymax=round(max(y));
-codebook=linspace(ymin,ymax,L); quant_level=linspace(ymin,ymax,L-1); [index,Quants]=quantiz(y,quant_level,codebook); noise=y-Quants;
-r=snr(y,noise); R=[R r];
-end subplot(3,1,3);
-plot(Quant_Level,R,'r*--'); xlabel('Number of Quantization levels'); ylabel('SNR in dB');
-title('SNR vs Number of Quantization level');
+plot(t, y);
+xlabel('Time');
+ylabel('Amplitude');
+title('Information Signal');
+grid on;
+L = 8;
+ymin = round(min(y));
+ymax = round(max(y));
+codebook = linspace(ymin, ymax, L);
+quant_level = linspace(ymin, ymax, L - 1);
+[index, Quants] = quantiz(y, quant_level, codebook);
+subplot(3,1,2);
+plot(t, Quants);
+xlabel('Time');
+ylabel('Amplitude');
+title('Quantized Signal (L = 8)');
+grid on;
+R = [];
+Quant_Level = [];
+for n = 2:8
+    L = n^2;
+    Quant_Level = [Quant_Level, L];
+    codebook = linspace(ymin, ymax, L);
+    quant_level = linspace(ymin, ymax, L - 1);
+    [index, Quants] = quantiz(y, quant_level, codebook);
+    noise = y - Quants;
+    r = snr(y, noise);
+    R = [R, r];
+end
+subplot(3,1,3);
+plot(Quant_Level, R, 'r*--');
+xlabel('Number of Quantization Levels');
+ylabel('SNR (dB)');
+title('SNR vs Quantization Level');
+grid on;
+
 
 
 sig=[];
